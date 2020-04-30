@@ -30,7 +30,6 @@ class searchPage extends Component {
           <div className="search-books">
           <div className="search-books-bar">
             <Link to='/' className="close-search" onClick={turnPage}/>
-            {/* <button className="close-search" onClick={turnPage}>Close</button> */}
             <div className="search-books-input-wrapper">                
               <input 
               type="text" 

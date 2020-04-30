@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import * as BooksAPI from './BooksAPI'
-import  { Route } from 'react-router-dom'
-import { Link } from 'react-router-dom'
+import  { Route, Link } from 'react-router-dom'
 import './App.scss'
 import BookShelf from './BookShelf';
 import AddShelfPage from './addShelfPage';
@@ -22,17 +21,15 @@ class BooksApp extends Component {
         this.setState(() => ({
             books
         }))  
-      })
+    })
   }
 
   componentDidUpdate(){
-
     window.onpopstate  = (e) => {
       this.setState(() => ({
         page:'bookshelf'
       }))
-      }
-  
+    }  
   }
 
   /* Book management */
@@ -42,15 +39,24 @@ class BooksApp extends Component {
     const { books } = this.state;
     const { value, id }  = book.target;
     let ind = -1;
+
+    //finds the index of the book being updated
     books.filter((b, index) => {
-      if (b.id === id) { ind = index }
+    //sets shelf value of the book at that index
+      if (b.id === id) { ind = index 
+        BooksAPI.update(b, value)
+        .then((b) => {
+          this.setState((prevState) => {
+            var booksUpdated = prevState.books
+            books[ind].shelf = value
+            return {books: booksUpdated}
+          })
+      })
+      }
       return ind;
     })
-    this.setState((prevState) => {
-      var booksUpdated = prevState.books
-      books[ind].shelf = value
-      return {books: booksUpdated}
-      })
+
+    
   }
 
   buildShelves() {
@@ -127,12 +133,14 @@ class BooksApp extends Component {
             turnPage={this.turnPage}
             books={books}
             shelves={shelves}
-            handleShelfChange={this.handleShelfChange}/>
+            handleShelfChange={this.handleShelfChange}
+            />
+            
           )}
           />
           
          : page === 'addShelf' ? 
-          
+         <Route path='/addShelf' render={() => (
           <AddShelfPage 
               turnPage={this.turnPage} 
               shelves={shelves} 
@@ -140,11 +148,13 @@ class BooksApp extends Component {
               shelfAdd={this.shelfAdd}
               shelfChange={this.shelfChange}
               tmpShelf={tmpShelf}/> 
-          
+            )}
+            />
           : page === 'addBook' ?
-            
+          <Route path='/addBook' render={() => (
             <AddBookPage turnPage={this.turnPage} books={books}/>
-           
+            )}
+            />
             : (
             <div className="list-books">
               <div className="list-books-title">
@@ -152,8 +162,9 @@ class BooksApp extends Component {
               </div>
               <div className="list-books-content">
                {page === 'bookshelf' && shelves.map((shelf) => (  // iterate through shelves                    
-                  <BookShelf 
-                    key={shelf.rawName}  
+                  <Route key={shelf.rawName} path='/' render={() => (
+                    <BookShelf 
+                     
                     currentShelfRaw={shelf.rawName}                            
                     books={books}
                     currentShelfPretty={shelf.prettyName}
@@ -164,11 +175,11 @@ class BooksApp extends Component {
                             screen: 'create'
                         }))
                     }}
-                  />          
+                  />    
+                  )}
+                  />      
                 ))}
-              </div>
-              
-                             
+              </div>        
                
               <div className="open-search"> 
                 <Link to='/search' className="searchBtn" onClick={() => this.setState({ page: 'search' })}/>
@@ -184,6 +195,7 @@ class BooksApp extends Component {
               </div>
             </div>
         )}
+        
       </div>
     )
   }

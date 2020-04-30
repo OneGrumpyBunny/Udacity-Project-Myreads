@@ -38,23 +38,27 @@ import Book from './Book';
 
 class BookShelf extends Component {
     render() {
-    const { handleShelfChange, currentShelfRaw, books, currentShelfPretty, shelves  } = this.props;  
+    const { handleShelfChange, currentShelfRaw, books, currentShelfPretty, shelves  } = this.props;
+    const numBooks = books.filter((b) => b.shelf === currentShelfRaw);
         return(
             <div className="bookshelf">
             <h2 className="bookshelf-title">{currentShelfPretty}</h2>
                 <div className="bookshelf-books">
                 <ol className="books-grid">
-                    {books.map((book, index) => (
+                    {numBooks.length > 0 
+                    ? books.map((book) => (
                         book.shelf === currentShelfRaw && 
                         <li key = {book.id}>
-                        <Book     
-                            bookIndex = {book.id}                       
-                            book = {book}
-                            shelves = {shelves}
-                            handleShelfChange = {handleShelfChange}
-                        />
-                    </li>
-                    ))}      
+                            <Book     
+                                bookIndex = {book.id}                       
+                                book = {book}
+                                shelves = {shelves}
+                                handleShelfChange = {handleShelfChange}
+                            />
+                        </li>
+                    ))
+                : <p>No books returned</p>
+                }      
                 </ol>
                 </div>
             </div>

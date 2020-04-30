@@ -7,10 +7,9 @@ class searchPage extends Component {
   }
 
   toggleButton=(e) => {
-    const { toggleButton } = this.state;
     const { value } = e.target;
     this.setState(() => ({
-      toggleButton: (value == "") ? false : true
+      toggleButton: (value === "") ? false : true
     }));
   }
 
