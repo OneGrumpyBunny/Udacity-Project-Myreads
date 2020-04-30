@@ -1,18 +1,19 @@
 import React, { Component } from 'react'
 import * as BooksAPI from './BooksAPI'
+import  { Route } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import './App.scss'
 import BookShelf from './BookShelf';
-import AddCatPage from './addCatPage';
+import AddShelfPage from './addShelfPage';
 import AddBookPage from './addBookPage';
 import SearchPage from './searchPage';
 
 class BooksApp extends Component {
   state = {
     books:[],
-    showSearchPage: false,
-    showAddCatPage: false,
-    showAddBookPage: false,
-    shelves: []
+    shelves: [],
+    tmpShelf: "",
+    page: 'bookshelf'
   }
 
   componentDidMount() {
@@ -24,15 +25,32 @@ class BooksApp extends Component {
       })
   }
 
-  handleShelfChange = (e) => {
-    e.preventDefault();
+  componentDidUpdate(){
+
+    window.onpopstate  = (e) => {
+      this.setState(() => ({
+        page:'bookshelf'
+      }))
+      }
+  
+  }
+
+  /* Book management */
+
+  handleShelfChange = (book) => {
+    book.preventDefault();    
     const { books } = this.state;
-    const { value, id }  = e.target;
+    const { value, id }  = book.target;
+    let ind = -1;
+    books.filter((b, index) => {
+      if (b.id === id) { ind = index }
+      return ind;
+    })
     this.setState((prevState) => {
       var booksUpdated = prevState.books
-      books[id].shelf = value
+      books[ind].shelf = value
       return {books: booksUpdated}
-    })
+      })
   }
 
   buildShelves() {
@@ -63,50 +81,107 @@ class BooksApp extends Component {
 
   turnPage = (e) => {
     this.setState({
-       showSearchPage: false,
-       showAddCatPage: false,
-       showAddBookPage: false
+       page: 'bookshelf'
     })
   }
 
+  /* shelf management */
+
+  shelfDelete = (shelf) => {
+    shelf.preventDefault();  
+    const { value } = shelf.target;
+    this.setState((prevState) => ({
+      shelves: prevState.shelves.filter((s) => {
+        return s.rawName !== value
+      })
+    }))
+  }
+
+  shelfAdd = (shelf) => {  
+    shelf.preventDefault();    
+    const { tmpShelf } = this.state;
+    let newObj = {"prettyName":tmpShelf,"rawName":tmpShelf};
+    this.setState((prevState) => ({
+      shelves: [...prevState.shelves, newObj],
+      showAddCatPage: true,
+      tmpShelf: ""
+    }));
+  }
+
+  shelfChange = (shelf) => {
+    shelf.preventDefault();
+    const { value } = shelf.target;
+    this.setState({
+        tmpShelf: value        
+    });
+  };
+
   render() {
-    const { books, shelves, showSearchPage, showAddCatPage, showAddBookPage } = this.state;    
-    if (shelves.length == 0 ) this.buildShelves();
+    const { books, shelves, tmpShelf, page } = this.state;    
+    if (shelves.length === 0 ) this.buildShelves();
     return (
       <div className="app">
-        {showSearchPage ? 
-          <SearchPage turnPage={this.turnPage}/>
-         : showAddCatPage ? 
-            <AddCatPage turnPage={this.turnPage}/> 
-          : showAddBookPage ?
-              <AddBookPage turnPage={this.turnPage}/>
+        {page === 'search' ? 
+          <Route path='/search' render={() => (
+          <SearchPage 
+            turnPage={this.turnPage}
+            books={books}
+            shelves={shelves}
+            handleShelfChange={this.handleShelfChange}/>
+          )}
+          />
+          
+         : page === 'addShelf' ? 
+          
+          <AddShelfPage 
+              turnPage={this.turnPage} 
+              shelves={shelves} 
+              shelfDelete={this.shelfDelete}
+              shelfAdd={this.shelfAdd}
+              shelfChange={this.shelfChange}
+              tmpShelf={tmpShelf}/> 
+          
+          : page === 'addBook' ?
+            
+            <AddBookPage turnPage={this.turnPage} books={books}/>
+           
             : (
             <div className="list-books">
               <div className="list-books-title">
                 <h1>MyReads</h1>
               </div>
               <div className="list-books-content">
-                  {shelves.map((shelf) => (  // iterate through shelves
-                    <BookShelf 
-                      key={shelf.rawName}  
-                      currentShelfRaw={shelf.rawName}                            
-                      books={books}
-                      currentShelfPretty={shelf.prettyName}
-                      shelves={shelves}
-                      handleShelfChange={this.handleShelfChange}/>                
-                  ))}
-              </div>
-              <div className="open-search">
-                <button onClick={() => this.setState({ showSearchPage: true })}>Search</button>
+               {page === 'bookshelf' && shelves.map((shelf) => (  // iterate through shelves                    
+                  <BookShelf 
+                    key={shelf.rawName}  
+                    currentShelfRaw={shelf.rawName}                            
+                    books={books}
+                    currentShelfPretty={shelf.prettyName}
+                    shelves={shelves}
+                    handleShelfChange={this.handleShelfChange}
+                    onNavigate= {() => {              // sets up which "page" to show
+                        this.setState(() => ({
+                            screen: 'create'
+                        }))
+                    }}
+                  />          
+                ))}
               </div>
               
+                             
+               
+              <div className="open-search"> 
+                <Link to='/search' className="searchBtn" onClick={() => this.setState({ page: 'search' })}/>
+              </div>
+                           
+            
               <div className="open-addCat">
-                <button onClick={() => this.setState({ showAddCatPage: true })}>Add Category</button>
+                <Link to='/addShelf' className="addShelfBtn" onClick={() => this.setState({ page: 'addShelf' })}/>
               </div>
               
               <div className="open-addBook">
-                <button onClick={() => this.setState({ showAddBookPage: true })}>Add Book</button>
-                  </div>
+                <Link to='/addBook' className="addBookBtn" onClick={() => this.setState({ page: 'addBook' })}/>
+              </div>
             </div>
         )}
       </div>
@@ -115,9 +190,3 @@ class BooksApp extends Component {
 }
 
 export default BooksApp
-/*<searchPage turnPage={this.turnPage}/>
- showAddCatPage ? 
-            <addCatPage turnPage={this.turnPage}/> 
-          : showAddBookPage ?
-              <addBookPage turnPage={this.turnPage}/>
-            : */

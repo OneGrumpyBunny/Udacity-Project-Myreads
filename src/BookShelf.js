@@ -38,7 +38,7 @@ import Book from './Book';
 
 class BookShelf extends Component {
     render() {
-    const { handleShelfChange,currentShelfRaw, books, currentShelfPretty, shelves  } = this.props;  
+    const { handleShelfChange, currentShelfRaw, books, currentShelfPretty, shelves  } = this.props;  
         return(
             <div className="bookshelf">
             <h2 className="bookshelf-title">{currentShelfPretty}</h2>
@@ -48,9 +48,8 @@ class BookShelf extends Component {
                         book.shelf === currentShelfRaw && 
                         <li key = {book.id}>
                         <Book     
-                            bookIndex = {index}                       
+                            bookIndex = {book.id}                       
                             book = {book}
-                            currentShelfRaw = {currentShelfRaw}
                             shelves = {shelves}
                             handleShelfChange = {handleShelfChange}
                         />
