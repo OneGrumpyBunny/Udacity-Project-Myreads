@@ -62,18 +62,3 @@ class searchPage extends Component {
 }
 
 export default searchPage;
-//           <div className="search-books-results">
-//             <ol className="books-grid">
-//             {query.length > 0 && showingBooks.map((book) => (
-                    
-//                   <li key = {book.id}>
-//                   <Book     
-//                       bookIndex = {book.id}                       
-//                       book = {book}
-//                       shelves = {shelves}
-//                       handleShelfChange = {handleShelfChange}
-//                   />
-//               </li>
-//               ))}
-//             </ol>
-//           </div>

@@ -5,7 +5,6 @@ class Book extends Component {
 
     render() {
         const { bookIndex, handleShelfChange, book, shelves } = this.props;
-        // const theseShelves = [{"rawName":"currentlyReading","prettyName":"Currently Reading "},{"rawName":"wantToRead","prettyName":"Want To Read "},{"rawName":"read","prettyName":"Read "}]
         return(
             <div className="book">
                 <div className="book-top">
